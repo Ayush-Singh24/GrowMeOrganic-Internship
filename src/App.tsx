@@ -22,7 +22,7 @@ const columns: ColumnType[] = [
 
 function App() {
   const [artworks, setArtworks] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedArtworks, setSelectedArtworks] = useState([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [first, setFirst] = useState<number>(0);
   const [totalRecords, setTotalRecords] = useState<number | undefined>(
@@ -61,8 +61,8 @@ function App() {
         selectionMode={"checkbox"}
         first={2}
         rows={12}
-        selection={selectedProducts}
-        onSelectionChange={(e) => setSelectedProducts(e.value)}
+        selection={selectedArtworks}
+        onSelectionChange={(e) => setSelectedArtworks(e.value)}
         dataKey="id"
         value={artworks}
         tableStyle={{ minWidth: "50rem" }}
