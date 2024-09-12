@@ -11,3 +11,70 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+
+.chevron-dropdown {
+  margin-top: 0.5rem;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
+  border-width: 1;
+  border-color: transparent;
+  transition: all ease-in-out 0.3s;
+  &:hover {
+    border-color: blue;
+  }
+}
+
+.overlaypanel-container {
+  height: 10rem;
+  width: 10rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.overlaypanel-input {
+  background-color: white;
+  color: black;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 1rem;
+  width: 80%;
+  outline: none;
+  &:focus {
+    border: 2px solid #555;
+  }
+}
+
+.overlaypanel-button {
+  padding: 0.4rem 1rem;
+  border-radius: 10px;
+  color: black;
+  border-width: 0;
+  background-color: rgb(50, 99, 183, 50%);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: rgb(50, 99, 183, 80%);
+  }
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: none;
+}
