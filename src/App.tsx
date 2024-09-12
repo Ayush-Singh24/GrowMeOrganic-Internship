@@ -1,14 +1,30 @@
 import "./App.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css"; //theme
 import "primereact/resources/primereact.min.css"; //core css
-import { DataTable } from "primereact/datatable";
+import {
+  DataTable,
+  DataTableSelectionMultipleChangeEvent,
+} from "primereact/datatable";
 import { Column } from "primereact/column";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { OverlayPanel } from "primereact/overlaypanel";
 
+const DEFAULT_ROWS_PER_PAGE = 12;
+const ROWS_PER_PAGE_OPTIONS = [DEFAULT_ROWS_PER_PAGE, 24, 36];
+
+type Artwork = {
+  id: number;
+  title: string;
+  place_of_origin: string;
+  artist_display: string;
+  inscriptions: string;
+  date_start: string;
+  date_end: string;
+};
+
 type ColumnType = {
-  field: string;
+  field: keyof Artwork;
   header: string;
 };
 
@@ -22,34 +38,52 @@ const columns: ColumnType[] = [
 ];
 
 function App() {
-  const [artworks, setArtworks] = useState([]);
-  const [selectedArtworks, setSelectedArtworks] = useState([]);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [selectedArtworkIds, setSelectedArtworkIds] = useState<Set<number>>(
+    new Set()
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [first, setFirst] = useState<number>(0);
-  const [inputValue, setInputValue] = useState<number>(0);
+  const [selectCount, setSelectCount] = useState<number>(0);
+  const [rowsPerPage, setRowsPerPage] = useState<
+    (typeof ROWS_PER_PAGE_OPTIONS)[number]
+  >(DEFAULT_ROWS_PER_PAGE);
   const [totalRecords, setTotalRecords] = useState<number | undefined>(
     undefined
   );
 
-  const fetchDataByPage = useCallback(async (page: number) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `https://api.artic.edu/api/v1/artworks?page=${page}`
-      );
-      const parsedResponse = await response.json();
-      setArtworks(parsedResponse.data);
-      setTotalRecords(parsedResponse.pagination.total);
-    } catch (error) {
-      console.error("Failed to fetch artworks:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const fetchData = useCallback(
+    async (page: number, limit: number = DEFAULT_ROWS_PER_PAGE) => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(
+          `https://api.artic.edu/api/v1/artworks?page=${page}&limit=${limit}`
+        );
+        const { data, pagination } = await response.json();
+        return { data, totalRecords: pagination.total };
+      } catch (error) {
+        console.error("Failed to fetch artworks:", error);
+        return { data: [], totalRecords: 0 };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  const loadPage = useCallback(
+    async (page: number, rows: number = DEFAULT_ROWS_PER_PAGE) => {
+      const { data, totalRecords } = await fetchData(page, rows);
+      setArtworks(data);
+      setTotalRecords(totalRecords);
+    },
+    [fetchData]
+  );
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
     setFirst(event.first);
-    fetchDataByPage(event.page + 1);
+    setRowsPerPage(event.rows);
+    loadPage(event.page + 1, event.rows);
   };
 
   const op = useRef<OverlayPanel>(null);
@@ -60,9 +94,47 @@ function App() {
     }
   };
 
+  const handleSelection = (
+    event: DataTableSelectionMultipleChangeEvent<Artwork[]>
+  ) => {
+    const newSelections = new Set<number>(selectedArtworkIds);
+    event.value.forEach((art) => newSelections.add(art.id));
+    artworks.forEach((art) => {
+      if (!event.value.some((selected) => selected.id === art.id)) {
+        newSelections.delete(art.id);
+      }
+    });
+    setSelectedArtworkIds(newSelections);
+  };
+
+  const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    if (op.current) {
+      op.current.hide();
+    }
+    if (selectCount <= 0) return;
+    const selectedIds = new Set<number>();
+    let page = 1;
+
+    while (selectedIds.size < selectCount) {
+      const { data } = await fetchData(page, rowsPerPage);
+      if (data.length === 0) break;
+
+      for (const artwork of data) {
+        if (selectedIds.size < selectCount) {
+          selectedIds.add(artwork.id);
+        } else {
+          break;
+        }
+      }
+      page++;
+    }
+    setSelectedArtworkIds(selectedIds);
+  };
+
   useEffect(() => {
-    fetchDataByPage(1);
-  }, [fetchDataByPage]);
+    loadPage(1);
+  }, [loadPage]);
 
   return (
     <>
@@ -71,9 +143,9 @@ function App() {
           loading={isLoading}
           selectionMode={"checkbox"}
           first={2}
-          rows={12}
-          selection={selectedArtworks}
-          onSelectionChange={(e) => setSelectedArtworks(e.value)}
+          rows={rowsPerPage}
+          selection={artworks.filter((art) => selectedArtworkIds.has(art.id))}
+          onSelectionChange={handleSelection}
           dataKey="id"
           value={artworks}
           tableStyle={{ minWidth: "50rem" }}
@@ -85,7 +157,11 @@ function App() {
           <Column
             headerStyle={{ width: "3rem" }}
             header={
-              <button className="chevron-dropdown" onClick={handleOverlay}>
+              <button
+                type="button"
+                className="chevron-dropdown"
+                onClick={handleOverlay}
+              >
                 <img className="chevron" src="/chevron-down.svg" />
               </button>
             }
@@ -96,9 +172,10 @@ function App() {
         </DataTable>
         <Paginator
           first={first}
-          rows={12}
+          rows={rowsPerPage}
           totalRecords={totalRecords}
           onPageChange={onPageChange}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         />
       </div>
       <OverlayPanel ref={op}>
@@ -107,10 +184,16 @@ function App() {
             type="number"
             className="overlaypanel-input"
             placeholder="Enter Number of rows"
-            value={inputValue}
-            onChange={(e) => setInputValue(Number(e.currentTarget.value))}
+            value={selectCount}
+            onChange={(e) => setSelectCount(Number(e.currentTarget.value))}
           />
-          <button className="overlaypanel-button">Submit</button>
+          <button
+            type="submit"
+            className="overlaypanel-button"
+            onClick={handleSubmit}
+          >
+            Submit
+          </button>
         </div>
       </OverlayPanel>
     </>

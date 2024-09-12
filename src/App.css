@@ -64,6 +64,10 @@
   &:hover {
     background-color: rgb(50, 99, 183, 80%);
   }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 /* Chrome, Safari, Edge, Opera */
