@@ -1,50 +1,34 @@
-# React + TypeScript + Vite
+# Deployment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+https://growmeorganicinternship.netlify.app/
 
-Currently, two official plugins are available:
+# Project Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project is a test for an internship, showcasing my skills in building a responsive and interactive datatable using React, PrimeReact,
 
-## Expanding the ESLint configuration
+## How to run?
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+To run this project, follow these steps:
 
-- Configure the top-level `parserOptions` property like this:
+1. Clone the repository:
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+   > `git clone https://github.com/Ayush-Singh24/GrowMeOrganic-Internship.git`
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+2. Install dependencies:
+   > `yarn install`
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+This command installs all the dependencies required for the project.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+3. Start the application:
+   > `yarn dev`
+
+This command starts the development server and opens the application in your default web browser.
+
+4. Open the application:
+
+   > Open a web browser and navigate to `http://localhost:5173` to view the application.
+
+5. Build for production:
+   > `yarn build`
+
+This command builds the application for production, creating a build folder in the root directory.
