@@ -81,6 +81,9 @@ function App() {
   );
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
+    if (isLoading) {
+      return;
+    }
     setFirst(event.first);
     setRowsPerPage(event.rows);
     loadPage(event.page + 1, event.rows);
