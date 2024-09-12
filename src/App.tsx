@@ -1,10 +1,9 @@
 import "./App.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css"; //theme
 import "primereact/resources/primereact.min.css"; //core css
-import "./App.css";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 
 type ColumnType = {
@@ -22,7 +21,7 @@ const columns: ColumnType[] = [
 ];
 
 function App() {
-  const [products, setProducts] = useState([]);
+  const [artworks, setArtworks] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [first, setFirst] = useState<number>(0);
@@ -30,25 +29,30 @@ function App() {
     undefined
   );
 
-  useEffect(() => {
-    fetchDataByPage(1).then((res) => setTotalRecords(res));
-  }, []);
-
-  const fetchDataByPage = async (page: number) => {
+  const fetchDataByPage = useCallback(async (page: number) => {
     setIsLoading(true);
-    const response = await fetch(
-      `https://api.artic.edu/api/v1/artworks?page=${page}`
-    );
-    const parsedResponse = await response.json();
-    setProducts(parsedResponse.data);
-    setIsLoading(false);
-    return parsedResponse.pagination.total;
-  };
+    try {
+      const response = await fetch(
+        `https://api.artic.edu/api/v1/artworks?page=${page}`
+      );
+      const parsedResponse = await response.json();
+      setArtworks(parsedResponse.data);
+      setTotalRecords(parsedResponse.pagination.total);
+    } catch (error) {
+      console.error("Failed to fetch artworks:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
     setFirst(event.first);
-    fetchDataByPage(event.first);
+    fetchDataByPage(event.page + 1);
   };
+
+  useEffect(() => {
+    fetchDataByPage(1);
+  }, [fetchDataByPage]);
 
   return (
     <div className="container">
@@ -60,7 +64,7 @@ function App() {
         selection={selectedProducts}
         onSelectionChange={(e) => setSelectedProducts(e.value)}
         dataKey="id"
-        value={products}
+        value={artworks}
         tableStyle={{ minWidth: "50rem" }}
       >
         <Column
