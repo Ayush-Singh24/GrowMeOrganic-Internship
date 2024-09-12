@@ -22,16 +22,30 @@ const columns: ColumnType[] = [
 
 function App() {
   const [products, setProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   useEffect(() => {
-    fetch("https://api.artic.edu/api/v1/artworks?page=1").then((res) =>
-      res.json().then((data) => {
-        setProducts(data.data);
+    fetch("https://api.artic.edu/api/v1/artworks?page=2").then((res) =>
+      res.json().then((parsedRes) => {
+        setProducts(parsedRes.data);
       })
     );
   }, []);
   return (
     <div className="container">
-      <DataTable value={products} tableStyle={{ minWidth: "50rem" }}>
+      <DataTable
+        selectionMode={"checkbox"}
+        selection={selectedProducts}
+        onSelectionChange={(e) => setSelectedProducts(e.value)}
+        dataKey="id"
+        value={products}
+        paginator
+        rows={12}
+        tableStyle={{ minWidth: "50rem" }}
+      >
+        <Column
+          selectionMode="multiple"
+          headerStyle={{ width: "3rem" }}
+        ></Column>
         {columns.map((col) => (
           <Column key={col.field} field={col.field} header={col.header} />
         ))}
