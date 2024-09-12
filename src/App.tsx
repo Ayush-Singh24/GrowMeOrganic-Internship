@@ -81,9 +81,8 @@ function App() {
   );
 
   const onPageChange = (event: PaginatorPageChangeEvent) => {
-    if (isLoading) {
-      return;
-    }
+    if (isLoading) return; // Disable page change while loading
+
     setFirst(event.first);
     setRowsPerPage(event.rows);
     loadPage(event.page + 1, event.rows);
@@ -97,6 +96,7 @@ function App() {
     }
   };
 
+  //Custom function for handling selections
   const handleSelection = (
     event: DataTableSelectionMultipleChangeEvent<Artwork[]>
   ) => {
@@ -110,6 +110,7 @@ function App() {
     setSelectedArtworkIds(newSelections);
   };
 
+  // Function for Custom Selection Panel(Overlay)
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (op.current) {
