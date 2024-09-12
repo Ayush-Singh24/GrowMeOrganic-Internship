@@ -35,3 +35,7 @@ Open a web browser and navigate to `http://localhost:5173` to view the applicati
 `yarn build`
 
 > This command builds the application for production, creating a build folder in the root directory.
+
+# Demo
+
+[![Watch the video](/demo.mp4)]
